@@ -1,4 +1,4 @@
-package net.praycloud.basebledemo
+package net.praycloud.basebledemo.views
 
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
@@ -9,6 +9,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import net.praycloud.basebledemo.R
 import net.praycloud.basebledemo.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
