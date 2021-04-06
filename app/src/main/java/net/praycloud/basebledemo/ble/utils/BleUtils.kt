@@ -1,4 +1,4 @@
-package net.praycloud.basebledemo.ble
+package net.praycloud.basebledemo.ble.utils
 
 import android.Manifest
 import android.app.Activity

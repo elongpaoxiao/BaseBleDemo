@@ -18,7 +18,6 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-
     <style name="Theme.BaseBleDemo.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.BaseBleDemo.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
