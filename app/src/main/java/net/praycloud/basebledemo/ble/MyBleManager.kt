@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.location.LocationManager
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import net.praycloud.basebledemo.ble.device_data.DeviceData
 import net.praycloud.basebledemo.ble.device_data.DeviceState
@@ -21,23 +22,34 @@ import no.nordicsemi.android.ble.BleManager
 import no.nordicsemi.android.ble.callback.DataSentCallback
 import no.nordicsemi.android.ble.callback.profile.ProfileDataCallback
 import no.nordicsemi.android.ble.data.Data
+import no.nordicsemi.android.ble.livedata.ObservableBleManager
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat
 import no.nordicsemi.android.support.v18.scanner.ScanCallback
 import no.nordicsemi.android.support.v18.scanner.ScanResult
 import no.nordicsemi.android.support.v18.scanner.ScanSettings
 import java.util.*
 
-class MyBleManager : BleManager {
+class MyBleManager : ObservableBleManager {
     val SERVICE_UUID = UUID.fromString(BleConfig.SERVICE_UUID)
     val WRITE_CHAR = UUID.fromString(BleConfig.READ_WRITE_UUID)
     val NOTIFICATION_CHAR = UUID.fromString(BleConfig.NOTIFICATION_UUID)
     private var writeCharacteristic: BluetoothGattCharacteristic? = null
     private var notificationCharacteristic:BluetoothGattCharacteristic? = null
 
-    private val deviceStates: MutableLiveData<DeviceState> = MutableLiveData<DeviceState>()
+    val deviceStates: MutableLiveData<DeviceState> = MutableLiveData<DeviceState>()
+    private var myApplication: Application
 
     constructor(application: Application) : super(application){
-        registerBroadcastReceivers(application)
+        myApplication = application
+        devicesLiveData = DevicesLiveData()
+        scannerStateLiveData = ScanState(BleUtils.isBleEnabled(),
+            BleUtils.isLocationEnabled(application))
+        registerBroadcastReceivers(myApplication)
+    }
+
+    override fun close() {
+        super.close()
+        unregisterBroadcastReceivers(myApplication)
     }
 
     private var supported = false
@@ -67,8 +79,8 @@ class MyBleManager : BleManager {
     fun reconnectDevice() {
         if (device != null) {
             connect(device!!)
-                .retry(3, 100)
-                .useAutoConnect(false)
+                .retry(BleConfig.connectRetryCount, BleConfig.connectRetryDelay)
+                .useAutoConnect(BleConfig.autoConnect)
                 .enqueue()
         }
     }
@@ -144,21 +156,24 @@ class MyBleManager : BleManager {
     /**
      * MutableLiveData containing the list of devices.
      */
-    private val devicesLiveData: DevicesLiveData? = null
+    private lateinit var devicesLiveData: DevicesLiveData
 
     /**
      * MutableLiveData containing the scanner state.
      */
-    private val scannerStateLiveData:ScanState? = null
+    private lateinit var scannerStateLiveData:ScanState
 
-    fun getDevices(): DevicesLiveData? {
+    fun getDevices(): DevicesLiveData {
         return devicesLiveData
     }
 
-    fun getScanState():ScanState?{
+    fun getScanState():ScanState{
         return scannerStateLiveData
     }
 
+    fun refresh() {
+        scannerStateLiveData!!.refresh()
+    }
     /**
      * Start scanning for Bluetooth devices.
      */
@@ -169,12 +184,12 @@ class MyBleManager : BleManager {
 
         // Scanning settings
         val settings = ScanSettings.Builder()
-            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-            .setReportDelay(500)
-            .setUseHardwareBatchingIfSupported(false)
+            .setScanMode(BleConfig.scanMode)
+            .setReportDelay(BleConfig.scanReportDelay)
+            .setUseHardwareBatchingIfSupported(BleConfig.useHardwareBatchingIfSupported)
             .build()
         val scanner = BluetoothLeScannerCompat.getScanner()
-        scanner.startScan(null, settings, scanCallback)
+        scanner.startScan(BleConfig.scanFilters, settings, scanCallback)
         scannerStateLiveData.scanningStarted()
     }
 
@@ -235,14 +250,19 @@ class MyBleManager : BleManager {
             )
         }
     }
-
+    private fun unregisterBroadcastReceivers(application: Application) {
+        application.unregisterReceiver(bluetoothStateBroadcastReceiver)
+        if (BleUtils.isMarshmallowOrAbove()) {
+            application.unregisterReceiver(locationProviderChangedReceiver)
+        }
+    }
     /**
      * Broadcast receiver to monitor the changes in the location provider.
      */
     private val locationProviderChangedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val enabled: Boolean = BleUtils.isLocationEnabled(context)
-            scannerStateLiveData!!.setLocationEnabled(enabled)
+            scannerStateLiveData.setLocationEnabled(enabled)
         }
     }
 

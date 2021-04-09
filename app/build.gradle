@@ -44,7 +44,6 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.0'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.0'
 
-    implementation 'no.nordicsemi.android:ble:2.2.4'
     implementation 'no.nordicsemi.android:ble-livedata:2.2.4'
     implementation 'no.nordicsemi.android.support.v18:scanner:1.4.3'
     testImplementation 'junit:junit:4.+'

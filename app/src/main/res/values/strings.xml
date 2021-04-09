@@ -5,7 +5,7 @@
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
-    <string name="previous">Previous</string>
+    <string name="previous">返回</string>
 
 
     <string name="hello_first_fragment">Hello first fragment</string>
@@ -17,4 +17,10 @@
     <string name="no_bluetooth">蓝牙服务没有开启</string>
     <string name="no_location">定位服务没有开启</string>
     <string name="open">开启</string>
+    <string name="led">LED灯</string>
+    <string name="switch_state">开关状态</string>
+    <string name="sound">声音</string>
+    <string name="offline">离线</string>
+    <string name="online">已连接</string>
+    <string name="connecting">连接中...</string>
 </resources>

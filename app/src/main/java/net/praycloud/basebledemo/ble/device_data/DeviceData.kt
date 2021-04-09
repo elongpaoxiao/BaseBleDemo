@@ -8,21 +8,22 @@ object DeviceData {
     private val SOUND_STATE_OFF: ByteArray = byteArrayOf(0x02,0x00)
     private val SOUND_STATE_ON: ByteArray = byteArrayOf(0x02,0x01)
 
-    fun led1TurnOn(): Data {
-        return Data(LED_STATE_ON)
+    fun ledTurn(on: Boolean): Data {
+        return if(on){
+            Data(LED_STATE_ON)
+        }else{
+            Data(LED_STATE_OFF)
+        }
     }
 
-    fun led1TurnOff(): Data {
-        return Data(LED_STATE_OFF)
+    fun soundTurn(on: Boolean): Data {
+        return if(on){
+            Data(SOUND_STATE_ON)
+        }else{
+            Data(SOUND_STATE_OFF)
+        }
     }
 
-    fun led2TurnOn(): Data {
-        return Data(SOUND_STATE_ON)
-    }
-
-    fun led2TurnOff(): Data {
-        return Data(SOUND_STATE_OFF)
-    }
 
     fun ledDataWriteCallback(deviceState: DeviceState,data: Data):DeviceState{
         when (data.getIntValue(Data.FORMAT_UINT8, 0)){
