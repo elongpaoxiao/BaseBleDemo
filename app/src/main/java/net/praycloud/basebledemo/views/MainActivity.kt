@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.bt_permission).setOnClickListener { onGrantLocationPermissionClicked() }
         findViewById<Button>(R.id.bt_bluetooth).setOnClickListener { onEnableBluetoothClicked() }
         findViewById<Button>(R.id.bt_location).setOnClickListener { onEnableLocationClicked() }
-
+        getMyBleManager().getScanState().observe(this,{scanStateRefresh(it)})
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
