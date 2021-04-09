@@ -28,11 +28,11 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-    private var myBleManager: MyBleManager = MyBleManager(application)
+    private lateinit var myBleManager: MyBleManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        myBleManager = MyBleManager(application)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

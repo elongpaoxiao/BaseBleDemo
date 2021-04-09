@@ -172,13 +172,13 @@ class MyBleManager : ObservableBleManager {
     }
 
     fun refresh() {
-        scannerStateLiveData!!.refresh()
+        scannerStateLiveData.refresh()
     }
     /**
      * Start scanning for Bluetooth devices.
      */
     fun startScan() {
-        if (scannerStateLiveData!!.isScanning()) {
+        if (scannerStateLiveData.isScanning()) {
             return
         }
 
@@ -197,7 +197,7 @@ class MyBleManager : ObservableBleManager {
      * Stop scanning for bluetooth devices.
      */
     fun stopScan() {
-        if (scannerStateLiveData!!.isScanning() && scannerStateLiveData.isBluetoothEnabled()) {
+        if (scannerStateLiveData.isScanning() && scannerStateLiveData.isBluetoothEnabled()) {
             val scanner = BluetoothLeScannerCompat.getScanner()
             scanner.stopScan(scanCallback)
             scannerStateLiveData.scanningStopped()
@@ -209,9 +209,9 @@ class MyBleManager : ObservableBleManager {
             // This callback will be called only if the scan report delay is not set or is set to 0.
 
             // If the packet has been obtained while Location was disabled, mark Location as not required
-            if (devicesLiveData!!.deviceDiscovered(result)) {
+            if (devicesLiveData.deviceDiscovered(result)) {
                 devicesLiveData.applyFilter()
-                scannerStateLiveData!!.recordFound()
+                scannerStateLiveData.recordFound()
             }
         }
 
@@ -220,18 +220,18 @@ class MyBleManager : ObservableBleManager {
 
             // If the packet has been obtained while Location was disabled, mark Location as not required
             var atLeastOneMatchedFilter = false
-            for (result in results) atLeastOneMatchedFilter = devicesLiveData!!.deviceDiscovered(
+            for (result in results) atLeastOneMatchedFilter = devicesLiveData.deviceDiscovered(
                 result
             ) || atLeastOneMatchedFilter
             if (atLeastOneMatchedFilter) {
-                devicesLiveData!!.applyFilter()
-                scannerStateLiveData!!.recordFound()
+                devicesLiveData.applyFilter()
+                scannerStateLiveData.recordFound()
             }
         }
 
         override fun onScanFailed(errorCode: Int) {
             // TODO This should be handled
-            scannerStateLiveData!!.scanningStopped()
+            scannerStateLiveData.scanningStopped()
         }
     }
 
@@ -277,10 +277,10 @@ class MyBleManager : ObservableBleManager {
                 BluetoothAdapter.STATE_OFF
             )
             when (state) {
-                BluetoothAdapter.STATE_ON -> scannerStateLiveData!!.bluetoothEnabled()
+                BluetoothAdapter.STATE_ON -> scannerStateLiveData.bluetoothEnabled()
                 BluetoothAdapter.STATE_TURNING_OFF, BluetoothAdapter.STATE_OFF -> if (previousState != BluetoothAdapter.STATE_TURNING_OFF && previousState != BluetoothAdapter.STATE_OFF) {
                     stopScan()
-                    scannerStateLiveData!!.bluetoothDisabled()
+                    scannerStateLiveData.bluetoothDisabled()
                 }
             }
         }
