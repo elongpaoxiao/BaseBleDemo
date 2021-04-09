@@ -81,15 +81,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun scanStateRefresh(scanState: ScanState){
+    private fun scanStateRefresh(scanState: ScanState){
         if(BleUtils.isLocationPermissionsGranted(this)){
             binding.noLocationPermission.content.visibility = View.GONE
             if(scanState.isBluetoothEnabled()){
                 binding.noBluetooth.content.visibility = View.GONE
-                if(!BleUtils.isLocationRequired(this)||BleUtils.isLocationEnabled(this)){
-                    binding.noLocation.content.visibility = View.GONE
-                }else{
-                    binding.noLocation.content.visibility = View.VISIBLE
+                getMyBleManager().startScan()
+                if (!scanState.hasRecords()){
+                    if(!BleUtils.isLocationRequired(this)||BleUtils.isLocationEnabled(this)){
+                        binding.noLocation.content.visibility = View.GONE
+                    }else{
+                        binding.noLocation.content.visibility = View.VISIBLE
+                    }
                 }
             }else{
                 binding.noBluetooth.content.visibility = View.VISIBLE

@@ -43,7 +43,6 @@ class FirstFragment : Fragment() {
         if (animator is SimpleItemAnimator) {
             animator.supportsChangeAnimations = false
         }
-        main.getMyBleManager().startScan()
     }
     private fun onItemClick(device: DiscoveredBluetoothDevice) {
         main.getMyBleManager().stopScan()

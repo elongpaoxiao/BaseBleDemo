@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.location.LocationManager
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import net.praycloud.basebledemo.ble.device_data.DeviceData
@@ -178,18 +179,16 @@ class MyBleManager : ObservableBleManager {
      * Start scanning for Bluetooth devices.
      */
     fun startScan() {
+        Log.i("startScan", scannerStateLiveData.isScanning().toString())
         if (scannerStateLiveData.isScanning()) {
             return
         }
-
-        // Scanning settings
         val settings = ScanSettings.Builder()
             .setScanMode(BleConfig.scanMode)
             .setReportDelay(BleConfig.scanReportDelay)
             .setUseHardwareBatchingIfSupported(BleConfig.useHardwareBatchingIfSupported)
             .build()
-        val scanner = BluetoothLeScannerCompat.getScanner()
-        scanner.startScan(BleConfig.scanFilters, settings, scanCallback)
+        BluetoothLeScannerCompat.getScanner().startScan(null, settings, scanCallback)
         scannerStateLiveData.scanningStarted()
     }
 
@@ -206,9 +205,7 @@ class MyBleManager : ObservableBleManager {
 
     private val scanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
-            // This callback will be called only if the scan report delay is not set or is set to 0.
-
-            // If the packet has been obtained while Location was disabled, mark Location as not required
+                Log.i("onScanResult",result.toString())
             if (devicesLiveData.deviceDiscovered(result)) {
                 devicesLiveData.applyFilter()
                 scannerStateLiveData.recordFound()
@@ -219,10 +216,10 @@ class MyBleManager : ObservableBleManager {
             // This callback will be called only if the report delay set above is greater then 0.
 
             // If the packet has been obtained while Location was disabled, mark Location as not required
+            Log.i("onBatchScanResults",results.size.toString())
             var atLeastOneMatchedFilter = false
-            for (result in results) atLeastOneMatchedFilter = devicesLiveData.deviceDiscovered(
-                result
-            ) || atLeastOneMatchedFilter
+            for (result in results)
+                atLeastOneMatchedFilter = devicesLiveData.deviceDiscovered(result) || atLeastOneMatchedFilter
             if (atLeastOneMatchedFilter) {
                 devicesLiveData.applyFilter()
                 scannerStateLiveData.recordFound()
