@@ -123,6 +123,9 @@ class MyBleManager(application: Application): ObservableBleManager(application) 
     override fun shouldClearCacheWhenDisconnected(): Boolean {
         return !supported
     }
+    /**
+     * 读写数据回调接口
+     * */
     private val writeDataCallback = DataSentCallback{ bluetoothDevice: BluetoothDevice, data: Data ->
         if(deviceStates.value==null){
             deviceStates.value = DeviceData.ledDataWriteCallback(bluetoothDevice.address,data)
@@ -131,14 +134,20 @@ class MyBleManager(application: Application): ObservableBleManager(application) 
         }
     }
 
+    /**
+     * 蓝牙设备主动上传数据监听接口
+     * */
     private val notificationDataCallback = ProfileDataCallback{ bluetoothDevice: BluetoothDevice, data: Data ->
         if(deviceStates.value==null){
-            deviceStates.value = DeviceData.ledDataWriteCallback(bluetoothDevice.address,data)
+            deviceStates.value = DeviceData.ledDataNotificationCallback(bluetoothDevice.address,data)
         }else{
-            deviceStates.value = DeviceData.ledDataWriteCallback(deviceStates.value!!,data)
+            deviceStates.value = DeviceData.ledDataNotificationCallback(deviceStates.value!!,data)
         }
     }
 
+    /**
+     * 写入数据
+     * */
     fun writeData(data: Data){
         if (writeCharacteristic != null) {
             writeCharacteristic(writeCharacteristic, data).with(writeDataCallback).enqueue()
