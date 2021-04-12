@@ -28,7 +28,7 @@
     android:id="@+id/device_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/colorSurface"
+    android:background="@color/black"
     android:paddingStart="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/item_padding_top"
     android:paddingEnd="@dimen/activity_horizontal_margin"
@@ -46,18 +46,19 @@
         android:ellipsize="end"
         android:singleLine="true"
         android:textSize="18sp"
+        android:textColor="@color/teal_200"
         android:text="Device1"/>
 
     <com.google.android.material.textview.MaterialTextView
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-        android:textColor="?android:attr/textColorSecondary"
+        android:textColor="@color/white"
         android:id="@+id/device_address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/device_name"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        tools:text="AA:BB:CC:DD:EE:FF"/>
+        tools:text="AA:BB:CC:DD:EE:FF" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/rssi"

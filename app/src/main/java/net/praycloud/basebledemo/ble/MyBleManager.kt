@@ -11,7 +11,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.location.LocationManager
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import net.praycloud.basebledemo.ble.device_data.DeviceData
 import net.praycloud.basebledemo.ble.device_data.DeviceState
@@ -19,7 +18,6 @@ import net.praycloud.basebledemo.ble.scan_data.DevicesLiveData
 import net.praycloud.basebledemo.ble.scan_data.DiscoveredBluetoothDevice
 import net.praycloud.basebledemo.ble.scan_data.ScanState
 import net.praycloud.basebledemo.ble.utils.BleUtils
-import no.nordicsemi.android.ble.BleManager
 import no.nordicsemi.android.ble.callback.DataSentCallback
 import no.nordicsemi.android.ble.callback.profile.ProfileDataCallback
 import no.nordicsemi.android.ble.data.Data
@@ -30,7 +28,7 @@ import no.nordicsemi.android.support.v18.scanner.ScanResult
 import no.nordicsemi.android.support.v18.scanner.ScanSettings
 import java.util.*
 
-class MyBleManager : ObservableBleManager {
+class MyBleManager(application: Application): ObservableBleManager(application) {
     val SERVICE_UUID = UUID.fromString(BleConfig.SERVICE_UUID)
     val WRITE_CHAR = UUID.fromString(BleConfig.READ_WRITE_UUID)
     val NOTIFICATION_CHAR = UUID.fromString(BleConfig.NOTIFICATION_UUID)
@@ -38,13 +36,9 @@ class MyBleManager : ObservableBleManager {
     private var notificationCharacteristic:BluetoothGattCharacteristic? = null
 
     val deviceStates: MutableLiveData<DeviceState> = MutableLiveData<DeviceState>()
-    private var myApplication: Application
+    private var myApplication: Application = application
 
-    constructor(application: Application) : super(application){
-        myApplication = application
-        devicesLiveData = DevicesLiveData()
-        scannerStateLiveData = ScanState(BleUtils.isBleEnabled(),
-            BleUtils.isLocationEnabled(application))
+    init{
         registerBroadcastReceivers(myApplication)
     }
 
@@ -157,12 +151,12 @@ class MyBleManager : ObservableBleManager {
     /**
      * MutableLiveData containing the list of devices.
      */
-    private lateinit var devicesLiveData: DevicesLiveData
+    private var devicesLiveData: DevicesLiveData = DevicesLiveData()
 
     /**
      * MutableLiveData containing the scanner state.
      */
-    private lateinit var scannerStateLiveData:ScanState
+    private var scannerStateLiveData:ScanState = ScanState(BleUtils.isBleEnabled(), BleUtils.isLocationEnabled(application))
 
     fun getDevices(): DevicesLiveData {
         return devicesLiveData
@@ -188,7 +182,7 @@ class MyBleManager : ObservableBleManager {
             .setReportDelay(BleConfig.scanReportDelay)
             .setUseHardwareBatchingIfSupported(BleConfig.useHardwareBatchingIfSupported)
             .build()
-        BluetoothLeScannerCompat.getScanner().startScan(null, settings, scanCallback)
+        BluetoothLeScannerCompat.getScanner().startScan(BleConfig.scanFilters, settings, scanCallback)
         scannerStateLiveData.scanningStarted()
     }
 
@@ -205,7 +199,7 @@ class MyBleManager : ObservableBleManager {
 
     private val scanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
-                Log.i("onScanResult",result.toString())
+            Log.i("onScanResult",result.toString())
             if (devicesLiveData.deviceDiscovered(result)) {
                 devicesLiveData.applyFilter()
                 scannerStateLiveData.recordFound()
@@ -216,11 +210,15 @@ class MyBleManager : ObservableBleManager {
             // This callback will be called only if the report delay set above is greater then 0.
 
             // If the packet has been obtained while Location was disabled, mark Location as not required
-            Log.i("onBatchScanResults",results.size.toString())
-            var atLeastOneMatchedFilter = false
-            for (result in results)
-                atLeastOneMatchedFilter = devicesLiveData.deviceDiscovered(result) || atLeastOneMatchedFilter
-            if (atLeastOneMatchedFilter) {
+
+
+            // This callback will be called only if the report delay set above is greater then 0.
+
+            // If the packet has been obtained while Location was disabled, mark Location as not required
+            if(results.size>=0){
+                for (result in results)
+                    devicesLiveData.deviceDiscovered(result)
+
                 devicesLiveData.applyFilter()
                 scannerStateLiveData.recordFound()
             }

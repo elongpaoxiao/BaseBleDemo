@@ -2,6 +2,7 @@ package net.praycloud.basebledemo.views.adapter
 
 import android.app.Application
 import android.text.TextUtils
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,19 +16,15 @@ import net.praycloud.basebledemo.ble.scan_data.DiscoveredBluetoothDevice
 import net.praycloud.basebledemo.views.MainActivity
 import java.util.*
 
-class DevicesAdapter(
-    activity: MainActivity,
-    devicesLiveData: DevicesLiveData
-) :
-    RecyclerView.Adapter<DevicesAdapter.ViewHolder>() {
-    private var devices: List<DiscoveredBluetoothDevice>? = null
-    private var onItemClickListener: OnItemClickListener? = null
+class DevicesAdapter : RecyclerView.Adapter<DevicesAdapter.ViewHolder> {
+    private var devices: List<DiscoveredBluetoothDevice> = listOf()
+    private lateinit var onItemClickListener: OnItemClickListener
 
     fun interface OnItemClickListener {
         fun onItemClick(device: DiscoveredBluetoothDevice)
     }
 
-    fun setOnItemClickListener(listener: OnItemClickListener?) {
+    fun setOnItemClickListener(listener: OnItemClickListener) {
         onItemClickListener = listener
     }
 
@@ -43,16 +40,16 @@ class DevicesAdapter(
         if (!TextUtils.isEmpty(deviceName)) holder.deviceName.text =
             deviceName else holder.deviceName.setText(R.string.unknown_device)
         holder.deviceAddress.setText(device.address)
-        val rssiPercent = (100.0f * (127.0f + device.rssi) / (127.0f + 20.0f)) as Int
-        holder.rssi.setImageLevel(rssiPercent)
+        val rssiPercent = (100.0f * (127.0f + device.rssi) / (127.0f + 20.0f))
+        holder.rssi.setImageLevel(rssiPercent.toInt())
     }
 
     override fun getItemId(position: Int): Long {
-        return devices!![position].hashCode().toLong()
+        return devices[position].hashCode().toLong()
     }
 
     override fun getItemCount(): Int {
-        return devices?.size ?: 0
+        return devices.size ?: 0
     }
 
     val isEmpty: Boolean
@@ -76,13 +73,17 @@ class DevicesAdapter(
         }
     }
 
-    init {
+    constructor(
+        activity: MainActivity,
+        devicesLiveData: DevicesLiveData
+    ){
         setHasStableIds(true)
         devicesLiveData.observe(activity) { newDevices ->
             val result = DiffUtil.calculateDiff(
                 DeviceDiffCallback(devices, newDevices), false
             )
             devices = newDevices
+            Log.i("deviceRe","devices:"+devices.size)
             result.dispatchUpdatesTo(this)
         }
     }

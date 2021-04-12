@@ -4,10 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".views.MainActivity"
-    android:background="@color/white">
+    tools:context=".views.MainActivity">
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/Theme.BaseBleDemo.AppBarOverlay">
@@ -18,6 +16,12 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/Theme.BaseBleDemo.PopupOverlay" />
+    </com.google.android.material.appbar.AppBarLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="60dp">
         <include
             android:id="@+id/no_location_permission"
             android:layout_width="match_parent"
@@ -39,7 +43,7 @@
             android:visibility="gone"
             android:layout_marginBottom="@dimen/item_padding_bottom"
             layout="@layout/info_no_location"/>
-    </com.google.android.material.appbar.AppBarLayout>
+    </LinearLayout>
 
     <include layout="@layout/content_main" />
 
