@@ -29,19 +29,25 @@ import no.nordicsemi.android.support.v18.scanner.ScanSettings
 import java.util.*
 
 class MyBleManager(application: Application): ObservableBleManager(application) {
-    val SERVICE_UUID = UUID.fromString(BleConfig.SERVICE_UUID)
-    val WRITE_CHAR = UUID.fromString(BleConfig.READ_WRITE_UUID)
-    val NOTIFICATION_CHAR = UUID.fromString(BleConfig.NOTIFICATION_UUID)
+    val serviceUUID: UUID = UUID.fromString(BleConfig.SERVICE_UUID)
+    val readWriteUUID: UUID = UUID.fromString(BleConfig.READ_WRITE_UUID)
+    val notificationUUID: UUID = UUID.fromString(BleConfig.NOTIFICATION_UUID)
     private var writeCharacteristic: BluetoothGattCharacteristic? = null
     private var notificationCharacteristic:BluetoothGattCharacteristic? = null
 
     val deviceStates: MutableLiveData<DeviceState> = MutableLiveData<DeviceState>()
     private var myApplication: Application = application
 
+    /**
+     * 初始化操作
+     * */
     init{
         registerBroadcastReceivers(myApplication)
     }
 
+    /**
+     * 注销
+     * */
     override fun close() {
         super.close()
         unregisterBroadcastReceivers(myApplication)
@@ -54,8 +60,7 @@ class MyBleManager(application: Application): ObservableBleManager(application) 
 
     private var device: BluetoothDevice? = null
     /**
-     * Connect to the given peripheral.
-     *
+     * 蓝牙连接接口
      * @param target the target device.
      */
     fun connectDevice(target: DiscoveredBluetoothDevice) {
@@ -67,9 +72,7 @@ class MyBleManager(application: Application): ObservableBleManager(application) 
     }
 
     /**
-     * Reconnects to previously connected device.
-     * If this device was not supported, its services were cleared on disconnection, so
-     * reconnection may help.
+     * 重连接口.
      */
     fun reconnectDevice() {
         if (device != null) {
@@ -81,7 +84,7 @@ class MyBleManager(application: Application): ObservableBleManager(application) 
     }
 
     /**
-     * Disconnect from peripheral.
+     * 断开蓝牙设备接口
      */
     fun disconnectDevice() {
         device = null
@@ -98,10 +101,10 @@ class MyBleManager(application: Application): ObservableBleManager(application) 
         }
 
         public override fun isRequiredServiceSupported(gatt: BluetoothGatt): Boolean {
-            val service = gatt.getService(SERVICE_UUID)
+            val service = gatt.getService(serviceUUID)
             if (service != null) {
-                writeCharacteristic = service.getCharacteristic(WRITE_CHAR)
-                notificationCharacteristic = service.getCharacteristic(NOTIFICATION_CHAR)
+                writeCharacteristic = service.getCharacteristic(readWriteUUID)
+                notificationCharacteristic = service.getCharacteristic(notificationUUID)
             }
             var writeRequest = false
             if (writeCharacteristic != null) {
@@ -155,15 +158,15 @@ class MyBleManager(application: Application): ObservableBleManager(application) 
     }
 
     ////////////////////////////////////////////////////////////////////////////
-    /////////////////////////scancode//////////////////////////////////////////
+    /////////////////////////扫描相关逻辑/////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
     /**
-     * MutableLiveData containing the list of devices.
+     * 扫描获取到的蓝牙对象数据
      */
     private var devicesLiveData: DevicesLiveData = DevicesLiveData()
 
     /**
-     * MutableLiveData containing the scanner state.
+     * 扫描状态
      */
     private var scannerStateLiveData:ScanState = ScanState(BleUtils.isBleEnabled(), BleUtils.isLocationEnabled(application))
 
@@ -179,7 +182,7 @@ class MyBleManager(application: Application): ObservableBleManager(application) 
         scannerStateLiveData.refresh()
     }
     /**
-     * Start scanning for Bluetooth devices.
+     * 开始扫描
      */
     fun startScan() {
         Log.i("startScan", scannerStateLiveData.isScanning().toString())
@@ -196,7 +199,7 @@ class MyBleManager(application: Application): ObservableBleManager(application) 
     }
 
     /**
-     * Stop scanning for bluetooth devices.
+     * 停止扫描
      */
     fun stopScan() {
         if (scannerStateLiveData.isScanning() && scannerStateLiveData.isBluetoothEnabled()) {
@@ -240,7 +243,7 @@ class MyBleManager(application: Application): ObservableBleManager(application) 
     }
 
     /**
-     * Register for required broadcast receivers.
+     * 注册广播监听蓝牙开关与定位开关
      */
     private fun registerBroadcastReceivers(application: Application) {
         application.registerReceiver(
@@ -254,6 +257,9 @@ class MyBleManager(application: Application): ObservableBleManager(application) 
             )
         }
     }
+    /**
+     * 注销广播监听
+     */
     private fun unregisterBroadcastReceivers(application: Application) {
         application.unregisterReceiver(bluetoothStateBroadcastReceiver)
         if (BleUtils.isMarshmallowOrAbove()) {

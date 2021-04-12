@@ -10,15 +10,15 @@ object BleConfig {
     /**
      * 服务UUID
      * */
-    const val SERVICE_UUID = "7BE6FFF0-5C0D-47E1-8710-6C407FD27865"
+    const val SERVICE_UUID = "1086FFF0-5C0D-47E1-8710-6C407FD27865"
     /**
      * 写指令UUID
      * */
-    const val READ_WRITE_UUID = "7BE6FFF1-5C0D-47E1-8710-6C407FD27865"
+    const val READ_WRITE_UUID = "1086FFF1-5C0D-47E1-8710-6C407FD27865"
     /**
      * noti，UUID
      * */
-    const val NOTIFICATION_UUID = "7BE6FFF2-5C0D-47E1-8710-6C407FD27865"
+    const val NOTIFICATION_UUID = "1086FFF2-5C0D-47E1-8710-6C407FD27865"
 
     /**
      * 重连尝试次数
@@ -43,9 +43,9 @@ object BleConfig {
 
     const val useHardwareBatchingIfSupported = false
     /**
-     * 扫描过滤条件
+     * 扫描过滤条件,若不过滤则设置为null
      * */
-    var scanFilters: ArrayList<ScanFilter> = arrayListOf(ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString(SERVICE_UUID)).build())
+    var scanFilters: ArrayList<ScanFilter>? = arrayListOf(ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString(SERVICE_UUID)).build())
 
 
 }
