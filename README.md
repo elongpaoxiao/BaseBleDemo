@@ -1,4 +1,4 @@
-# BaseBleDemo
+# 基础蓝牙操作演示app
 
 #### 介绍
 利用Nordic的蓝牙库进行基础的低功耗蓝牙操作Demo。
