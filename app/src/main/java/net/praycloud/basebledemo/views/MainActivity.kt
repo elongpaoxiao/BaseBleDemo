@@ -4,19 +4,18 @@ import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.widget.Button
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import com.google.android.material.snackbar.Snackbar
 import net.praycloud.basebledemo.R
 import net.praycloud.basebledemo.ble.MyBleManager
 import net.praycloud.basebledemo.ble.scan_data.ScanState
@@ -25,7 +24,7 @@ import net.praycloud.basebledemo.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private val REQUEST_ACCESS_FINE_LOCATION:Int = 1086 // random number
-
+    private val REQUEST_BLE_LOCATION:Int = 1088 // random number
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
@@ -44,6 +43,7 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         findViewById<Button>(R.id.bt_permission).setOnClickListener { onGrantLocationPermissionClicked() }
+        findViewById<Button>(R.id.bt_ble_permission).setOnClickListener {  onGrantBlePermissionClicked() }
         findViewById<Button>(R.id.bt_bluetooth).setOnClickListener { onEnableBluetoothClicked() }
         findViewById<Button>(R.id.bt_location).setOnClickListener { onEnableLocationClicked() }
         getMyBleManager().getScanState().observe(this,{scanStateRefresh(it)})
@@ -64,29 +64,37 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == REQUEST_ACCESS_FINE_LOCATION) {
             getMyBleManager().refresh()
         }
+        if (requestCode == REQUEST_BLE_LOCATION) {
+            getMyBleManager().refresh()
+        }
     }
 
     private fun scanStateRefresh(scanState: ScanState){
-        if(BleUtils.isLocationPermissionsGranted(this)){
-            binding.noLocationPermission.content.visibility = View.GONE
-            if(scanState.isBluetoothEnabled()){
-                binding.noBluetooth.content.visibility = View.GONE
-                getMyBleManager().startScan()
-                if (!scanState.hasRecords()){
-                    if(!BleUtils.isLocationRequired(this)||BleUtils.isLocationEnabled(this)){
-                        binding.noLocation.content.visibility = View.GONE
-                    }else{
-                        binding.noLocation.content.visibility = View.VISIBLE
+        if(BleUtils.isBluetoothPermissionsGranted(this)){
+            if(BleUtils.isLocationPermissionsGranted(this)){
+                binding.noLocationPermission.content.visibility = View.GONE
+                if(scanState.isBluetoothEnabled()){
+                    binding.noBluetooth.content.visibility = View.GONE
+                    getMyBleManager().startScan()
+                    if (!scanState.hasRecords()){
+                        if(!BleUtils.isLocationRequired(this)||BleUtils.isLocationEnabled(this)){
+                            binding.noLocation.content.visibility = View.GONE
+                        }else{
+                            binding.noLocation.content.visibility = View.VISIBLE
+                        }
                     }
+                }else{
+                    binding.noBluetooth.content.visibility = View.VISIBLE
                 }
             }else{
-                binding.noBluetooth.content.visibility = View.VISIBLE
+                binding.noLocationPermission.content.visibility = View.VISIBLE
+                binding.noBluetooth.content.visibility = View.GONE
+                binding.noLocation.content.visibility = View.GONE
             }
         }else{
-            binding.noLocationPermission.content.visibility = View.VISIBLE
-            binding.noBluetooth.content.visibility = View.GONE
-            binding.noLocation.content.visibility = View.GONE
+            binding.noBlePermission.content.visibility = View.GONE
         }
+
     }
 
     private fun onEnableLocationClicked() {
@@ -98,7 +106,13 @@ class MainActivity : AppCompatActivity() {
         val enableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         startActivity(enableIntent)
     }
-
+    private fun onGrantBlePermissionClicked() {
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.S){
+            BleUtils.markBlePermissionRequested(this)
+            ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.BLUETOOTH_SCAN,Manifest.permission.BLUETOOTH_CONNECT), REQUEST_BLE_LOCATION)
+        }
+    }
     private fun onGrantLocationPermissionClicked() {
         BleUtils.markLocationPermissionRequested(this)
         ActivityCompat.requestPermissions(this,

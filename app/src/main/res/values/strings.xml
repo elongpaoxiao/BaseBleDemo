@@ -14,6 +14,7 @@
     <string name="unknown_device">----</string>
 
     <string name="no_location_permission">安卓6.0以上蓝牙操作需要定位权限</string>
+    <string name="no_ble_permission">需要蓝牙权限</string>
     <string name="no_bluetooth">蓝牙服务没有开启</string>
     <string name="no_location">定位服务没有开启</string>
     <string name="open">开启</string>

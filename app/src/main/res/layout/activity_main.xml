@@ -30,6 +30,13 @@
             android:layout_marginBottom="@dimen/item_padding_bottom"
             layout="@layout/info_no_permission"/>
         <include
+            android:id="@+id/no_ble_permission"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_marginBottom="@dimen/item_padding_bottom"
+            layout="@layout/info_no_permission"/>
+        <include
             android:id="@+id/no_bluetooth"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

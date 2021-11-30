@@ -8,12 +8,14 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
 import android.provider.Settings.SettingNotFoundException
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
 object BleUtils {
     private const val PREFS_LOCATION_NOT_REQUIRED = "location_not_required"
     private const val PREFS_PERMISSION_REQUESTED = "permission_requested"
+    private const val PREFS_BLE_PERMISSION_REQUESTED = "ble_permission_requested"
     /**
      * Checks whether Bluetooth is enabled.
      *
@@ -32,6 +34,22 @@ object BleUtils {
     fun isLocationPermissionsGranted(context: Context): Boolean {
         return (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED)
+    }
+
+    /**
+     * Checks for required permissions.
+     *
+     * @return True if permissions are already granted, false otherwise.
+     */
+    fun isBluetoothPermissionsGranted(context: Context): Boolean {
+        return if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.S) {
+            (ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN)
+                    == PackageManager.PERMISSION_GRANTED)&&(ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT)
+                    == PackageManager.PERMISSION_GRANTED)
+        }else{
+            true
+        }
+
     }
 
     /**
@@ -120,6 +138,12 @@ object BleUtils {
         val preferences = activity.getPreferences(Activity.MODE_PRIVATE)
         preferences.edit()
             .putBoolean(PREFS_PERMISSION_REQUESTED, true)
+            .apply()
+    }
+    fun markBlePermissionRequested(activity: Activity) {
+        val preferences = activity.getPreferences(Activity.MODE_PRIVATE)
+        preferences.edit()
+            .putBoolean(PREFS_BLE_PERMISSION_REQUESTED, true)
             .apply()
     }
     fun isMarshmallowOrAbove(): Boolean {

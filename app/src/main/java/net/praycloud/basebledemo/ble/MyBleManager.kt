@@ -18,17 +18,17 @@ import net.praycloud.basebledemo.ble.scan_data.DevicesLiveData
 import net.praycloud.basebledemo.ble.scan_data.DiscoveredBluetoothDevice
 import net.praycloud.basebledemo.ble.scan_data.ScanState
 import net.praycloud.basebledemo.ble.utils.BleUtils
+import no.nordicsemi.android.ble.BleManager
 import no.nordicsemi.android.ble.callback.DataSentCallback
 import no.nordicsemi.android.ble.callback.profile.ProfileDataCallback
 import no.nordicsemi.android.ble.data.Data
-import no.nordicsemi.android.ble.livedata.ObservableBleManager
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat
 import no.nordicsemi.android.support.v18.scanner.ScanCallback
 import no.nordicsemi.android.support.v18.scanner.ScanResult
 import no.nordicsemi.android.support.v18.scanner.ScanSettings
 import java.util.*
 
-class MyBleManager(application: Application): ObservableBleManager(application) {
+class MyBleManager(application: Application): BleManager(application) {
     val serviceUUID: UUID = UUID.fromString(BleConfig.SERVICE_UUID)
     val readWriteUUID: UUID = UUID.fromString(BleConfig.READ_WRITE_UUID)
     val notificationUUID: UUID = UUID.fromString(BleConfig.NOTIFICATION_UUID)
@@ -121,6 +121,10 @@ class MyBleManager(application: Application): ObservableBleManager(application) 
             notificationCharacteristic = null
             //            notiStates.setValue(0);
         }
+
+        override fun onServicesInvalidated() {
+
+        }
     }
 
     override fun shouldClearCacheWhenDisconnected(): Boolean {
@@ -212,6 +216,7 @@ class MyBleManager(application: Application): ObservableBleManager(application) 
     private val scanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             Log.i("onScanResult",result.toString())
+            result.device
             if (devicesLiveData.deviceDiscovered(result)) {
                 devicesLiveData.applyFilter()
                 scannerStateLiveData.recordFound()
