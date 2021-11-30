@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/project/baseble/app/src/main/res/layout/activity_main.xml" value="0.2046875" />
+        <entry key="..\:/project/baseble/app/src/main/res/layout/info_ble_location.xml" value="0.2046875" />
+        <entry key="..\:/project/baseble/app/src/main/res/layout/info_no_permission.xml" value="0.2046875" />
+      </map>
+    </option>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
